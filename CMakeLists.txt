@@ -11,7 +11,12 @@ add_executable(BinaryTree "Source Files/main.cpp"
         "Header Files/TreeGenerator.h"
         "Header Files/TreeReader.h"
         "Header Files/PathFinder.h"
-        "Header Files/PythonBridge.h")
+        "Header Files/PythonBridge.h"
+        "Source Files/Node.cpp"
+        "Source Files/TreeGenerator.cpp"
+        "Source Files/TreeReader.cpp"
+        "Source Files/PathFinder.cpp"
+        "Source Files/PythonBridge.cpp")
 
 # Python
 
