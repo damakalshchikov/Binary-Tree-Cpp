@@ -1,0 +1,5 @@
+# CLoin Files
+.idea/
+
+# CMake Debug
+cmake-build-debug-g/
