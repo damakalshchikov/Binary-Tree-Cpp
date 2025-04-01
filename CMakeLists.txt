@@ -6,7 +6,12 @@ project(BinaryTree)
 set(CMAKE_CXX_STANDARD 20)
 
 # Добавляем исполняемый файл
-add_executable(BinaryTree "Source Files/main.cpp")
+add_executable(BinaryTree "Source Files/main.cpp"
+        "Header Files/Node.h"
+        "Header Files/TreeGenerator.h"
+        "Header Files/TreeReader.h"
+        "Header Files/PathFinder.h"
+        "Header Files/PythonBridge.h")
 
 # Python
 
