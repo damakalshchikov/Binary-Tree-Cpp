@@ -3,7 +3,9 @@
 //
 #include "../Header Files/PathFinder.h"
 #include <algorithm>
+#include <set>
 #include <unordered_set>
+#include <tuple>
 
 using namespace std;
 
@@ -18,10 +20,9 @@ vector<vector<Node *>> PathFinder::findLongestPaths(const vector<Node*>& tree) {
         return {};
     }
 
-    // Кэщ для хранения максимальной длины пути, начинающегося с каждой вершины
+    // Кэш для хранения максимальной длины пути, начинающегося с каждой вершины
     unordered_map<Node*, vector<vector<Node*>>> longestPathCache;
     int maxLength = 0;
-
     vector<vector<Node*>> allLongestPaths;
 
     // Ищем пути, которые начинаются с каждой вершины
@@ -30,31 +31,30 @@ vector<vector<Node *>> PathFinder::findLongestPaths(const vector<Node*>& tree) {
             vector<vector<Node*>> nodePaths = dfs(node, longestPathCache);
 
             // Находим максимальную длину пути, начинающегося с этой вершины
-            int longestFromNode = 0;
-            for (auto& path : nodePaths) {
-                longestFromNode = max(longestFromNode, static_cast<int>(path.size()));
-            }
+            if (!nodePaths.empty()) {
+                int longestFromNode = nodePaths[0].size(); // Все пути в nodePaths имеют одинаковую длину
 
-            // Обновляем максимальный путь
-            if (longestFromNode > maxLength) {
-                maxLength = longestFromNode;
-                allLongestPaths = nodePaths;
-            } else if (longestFromNode == maxLength) {
-                allLongestPaths.insert(allLongestPaths.end(), nodePaths.begin(), nodePaths.end());
+                // Обновляем максимальный путь
+                if (longestFromNode > maxLength) {
+                    maxLength = longestFromNode;
+                    allLongestPaths = nodePaths;
+                } else if (longestFromNode == maxLength) {
+                    allLongestPaths.insert(allLongestPaths.end(), nodePaths.begin(), nodePaths.end());
+                }
             }
         }
     }
 
-    // Оставляем пути только максимального размера
+    // Оставляем пути только максимального размера и удаляем дубликаты
     vector<vector<Node*>> resultPaths;
-    unordered_set<string> seenPaths;
+    set<vector<int>> seenPaths; // Используем вектор чисел для сравнения путей
 
     for (auto& path : allLongestPaths) {
         if (path.size() == maxLength) {
-            // Создаём уникальный ключ для пути
-            string pathKey;
+            // Создаём уникальный ключ для пути (набор номеров узлов)
+            vector<int> pathKey;
             for (Node* node : path) {
-                pathKey += to_string(node->getNumber()) + "_";
+                pathKey.push_back(node->getNumber());
             }
 
             // Добавляем путь, если он не встречался
@@ -76,7 +76,7 @@ vector<vector<Node *>> PathFinder::findLongestPaths(const vector<Node*>& tree) {
  */
 vector<vector<Node*>> PathFinder::dfs(Node* node, unordered_map<Node*, vector<vector<Node*>>>& cache) {
     // Проверяем, есть ли уже результат
-    if (cache.find(node) == cache.end()) {
+    if (cache.find(node) != cache.end()) {
         return cache[node];
     }
 
@@ -112,12 +112,12 @@ vector<vector<Node*>> PathFinder::dfs(Node* node, unordered_map<Node*, vector<ve
     // Оставляем пути только максимальной длины
     vector<vector<Node*>> longestPathsFromNode;
     for (auto& path: paths) {
-        if (path.size() > maxLengthPath) {
+        if (path.size() == maxLengthPath) {
             longestPathsFromNode.push_back(path);
         }
     }
 
-    // Сохраняем результат и кэш
+    // Сохраняем результат в кэш
     cache[node] = longestPathsFromNode;
     return longestPathsFromNode;
 }

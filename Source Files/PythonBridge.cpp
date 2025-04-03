@@ -17,6 +17,12 @@ bool PythonBridge::isPythonInitialized = false;
 void PythonBridge::initialize() {
     if (!isPythonInitialized) {
         Py_Initialize();
+
+        // Добавляем текущую директорию в sys.path
+        PyRun_SimpleString("import sys\n"
+                          "import os\n"
+                          "sys.path.append(os.getcwd())\n");
+
         isPythonInitialized = true;
     }
 }

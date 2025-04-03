@@ -6,8 +6,11 @@
 #include <fstream>
 #include "../Header Files/Node.h"
 #include "../Header Files/TreeReader.h"
+#include "../Header Files/TreeGenerator.h"
 #include "../Header Files/PathFinder.h"
 #include "../Header Files/PythonBridge.h"
+
+using namespace std;
 
 int main() {
     // Устанавливаем локаль для корректного отображения русских символов
@@ -19,64 +22,67 @@ int main() {
     // Очистка папки с изображениями
     PythonBridge::cleanImagesFolder("./Images");
 
-    std::wcout << L"Программа для поиска длиннейшего пути с возрастающими значениями в бинарном дереве" << std::endl;
-    std::cout << "---------------------------------------------------------------------------------" << std::endl;
+    wcout << L"Программа для поиска длиннейшего пути с возрастающими значениями в бинарном дереве" << endl;
+    cout << "---------------------------------------------------------------------------------" << endl;
 
     // Запрос имени файла с деревом
-    std::string filename;
-    std::wcout << L"Введите имя файла с деревом (или нажмите Enter для использования 'tree.txt'): ";
-    std::getline(std::cin, filename);
+    string filename;
+    wcout << L"Введите имя файла с деревом (или нажмите Enter для использования 'tree.txt'): ";
+    getline(std::cin, filename);
     if (filename.empty()) {
         filename = "./Cases/tree.txt";
     }
 
     // Чтение дерева из файла
-    std::vector<Node*> tree;
+    vector<Node*> tree;
     try {
         tree = TreeReader::readFile(filename);
-        std::wcout << L"Дерево успешно загружено из файла " << std::endl;
+        wcout << L"Дерево успешно загружено из файла " << endl;
     } catch (const std::exception& e) {
-        std::wcerr << L"Ошибка при чтении дерева из файла: " << e.what() << std::endl;
+        wcerr << L"Ошибка при чтении дерева из файла: " << e.what() << endl;
         PythonBridge::finalize();
         return 1;
     }
 
+    // Устанавливаем связи между вершинами
+    TreeReader::buildTreeConnections(tree);
+
     // Визуализация дерева
     try {
         PythonBridge::drawTree(tree, "./Images/tree.png");
-        std::wcout << L"Изображение дерева сохранено в файл ./Images/tree.png" << std::endl;
-    } catch (const std::exception& e) {
-        std::wcerr << L"Ошибка при создании изображения дерева: " << e.what() << std::endl;
+        wcout << L"Изображение дерева сохранено в файл ./Images/tree.png" << endl;
+    } catch (const exception& e) {
+        wcerr << L"Ошибка при создании изображения дерева: " << e.what() << endl;
     }
 
     // Поиск длиннейшего пути с возрастающими значениями
-    std::vector<std::vector<Node*>> longestPaths = PathFinder::findLongestPaths(tree);
+    vector<vector<Node*>> longestPaths = PathFinder::findLongestPaths(tree);
 
     if (longestPaths.empty()) {
-        std::wcout << L"В дереве не найдено путей с возрастающими значениями" << std::endl;
+        wcout << L"В дереве не найдено путей с возрастающими значениями" << endl;
     } else {
-        std::wcout << L"\nНайдено " << longestPaths.size() << L" длиннейших путей с возрастающими значениями:" << std::endl;
+        wcout << L"\nНайдено " << longestPaths.size() << L" длиннейших путей с возрастающими значениями:" << endl;
         
         for (size_t i = 0; i < longestPaths.size(); ++i) {
             const auto& path = longestPaths[i];
             
             // Вывод пути
-            std::wcout << L"Путь " << (i + 1) << L" (длина " << path.size() << "): ";
+            wcout << L"Путь " << (i + 1) << L" (длина " << path.size() << "): ";
             for (size_t j = 0; j < path.size(); ++j) {
-                std::cout << path[j]->getNumber();
+                cout << path[j]->getNumber();
                 if (j < path.size() - 1) {
-                    std::cout << " -> ";
+                    cout << " -> ";
                 }
             }
-            std::cout << std::endl;
+            cout << endl;
             
             // Визуализация пути
             try {
-                std::string outputFile = "./Images/path_" + std::to_string(i + 1) + ".png";
+                string outputFile = "./Images/path_" + std::to_string(i + 1) + ".png";
                 PythonBridge::drawPath(tree, path, outputFile);
                 //std::wcout << L"Изображение пути сохранено в файл " << outputFile << std::endl;
             } catch (const std::exception& e) {
-                std::wcerr << L"Ошибка при создании изображения пути: " << e.what() << std::endl;
+                wcerr << L"Ошибка при создании изображения пути: " << e.what() << endl;
             }
         }
     }
@@ -90,8 +96,8 @@ int main() {
     // Завершение работы с Python
     PythonBridge::finalize();
 
-    std::wcout << L"\nПрограмма завершена. Нажмите Enter для выхода...";
-    std::cin.get();
+    wcout << L"\nПрограмма завершена. Нажмите Enter для выхода...";
+    cin.get();
     
     return 0;
 }
