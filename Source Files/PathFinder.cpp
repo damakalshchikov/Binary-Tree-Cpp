@@ -12,7 +12,7 @@ using namespace std;
  * @param tree Вектор указателей на вершины дерева
  * @return Вектор путей, где каждый путь - это вектор указателей на вершины
  */
-vector<vector<Node *>> PathFinder::findLongestPaths(const vector<Node *> &tree) {
+vector<vector<Node *>> PathFinder::findLongestPaths(const vector<Node*>& tree) {
     // Проверка на пустое дерево
     if (tree.empty() || tree[0] == nullptr) {
         return {};

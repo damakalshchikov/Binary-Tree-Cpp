@@ -4,6 +4,7 @@
 #include "../Header Files/TreeReader.h"
 #include <fstream>
 #include <string>
+#include <iostream>
 
 using namespace std;
 
@@ -23,6 +24,8 @@ vector<Node*> TreeReader::readFile(const string& fileName) {
         // Удаляем пробельные символы с начала и с конца строки
         line.erase(0, line.find_first_not_of(" \t\r\n"));
         line.erase(line.find_last_not_of(" \t\r\n") + 1);
+
+        cout << line << endl;
 
         if (line == "None") {
             tree.push_back(nullptr);
