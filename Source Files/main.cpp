@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <chrono>
+
 #include "../Header Files/Node.h"
 #include "../Header Files/TreeReader.h"
 #include "../Header Files/TreeGenerator.h"
@@ -13,7 +15,6 @@
 using namespace std;
 
 int main() {
-    // Устанавливаем локаль для корректного отображения русских символов
     setlocale(LC_ALL, "");
 
     // Инициализация интерпретатора Python
@@ -22,15 +23,26 @@ int main() {
     // Очистка папки с изображениями
     PythonBridge::cleanImagesFolder("./Images");
 
-    wcout << L"Программа для поиска длиннейшего пути с возрастающими значениями в бинарном дереве" << endl;
-    cout << "---------------------------------------------------------------------------------" << endl;
+    wcout << L"Программа для поиска длиннейшего пути(путей) с возрастающими значениями в бинарном дереве" << endl;
 
-    // Запрос имени файла с деревом
+    int modeProgram;
+    // Выбор режима работы программы
+    wcout << L"Выберете режим работы программы:" << endl;
+    wcout << L"1 - чтение существующего файла" << endl;
+    wcout << L"2 - генерация файла и его последующее чтение" << endl << endl;
+    wcout << L"Введите режим работы программы: ";
+    cin >> modeProgram;
+
+    // Запрос имени файла
     string filename;
-    wcout << L"Введите имя файла с деревом (или нажмите Enter для использования 'tree.txt'): ";
-    getline(std::cin, filename);
-    if (filename.empty()) {
-        filename = "./Cases/tree.txt";
+    wcout << L"Введите имя файла: ";
+    cin >> filename;
+
+    if (modeProgram == 2) {
+        int n;
+        wcout << L"Введите количество вершин в дереве:  ";
+        cin >> n;
+        TreeGenerator::generateTestFile(filename, n);
     }
 
     // Чтение дерева из файла
@@ -55,8 +67,15 @@ int main() {
         wcerr << L"Ошибка при создании изображения дерева: " << e.what() << endl;
     }
 
+    // Начало замера времени
+    auto start = chrono::steady_clock::now();
     // Поиск длиннейшего пути с возрастающими значениями
     vector<vector<Node*>> longestPaths = PathFinder::findLongestPaths(tree);
+    // Конец замера времени
+    auto end = chrono::steady_clock::now();
+
+    long duration = chrono::duration_cast<chrono::microseconds>(end - start).count();
+    wcout << L"Время поиска путей: " << duration << L"мксек" << endl;
 
     if (longestPaths.empty()) {
         wcout << L"В дереве не найдено путей с возрастающими значениями" << endl;
@@ -77,13 +96,8 @@ int main() {
             cout << endl;
             
             // Визуализация пути
-            try {
-                string outputFile = "./Images/path_" + std::to_string(i + 1) + ".png";
-                PythonBridge::drawPath(tree, path, outputFile);
-                //std::wcout << L"Изображение пути сохранено в файл " << outputFile << std::endl;
-            } catch (const std::exception& e) {
-                wcerr << L"Ошибка при создании изображения пути: " << e.what() << endl;
-            }
+            string outputFile = "./Images/path_" + std::to_string(i + 1) + ".png";
+            PythonBridge::drawPath(tree, path, outputFile);
         }
     }
 
@@ -96,8 +110,7 @@ int main() {
     // Завершение работы с Python
     PythonBridge::finalize();
 
-    wcout << L"\nПрограмма завершена. Нажмите Enter для выхода...";
-    cin.get();
+    wcout << L"\nПрограмма завершена.";
     
     return 0;
 }
